@@ -7,10 +7,10 @@ Add a short description here!
 
 A longer description of your project goes here...
 
-## Requierments
- - [python >= 3.8] (https://pip.pypa.io/en/stable/installation/)
- - [pip >= 22.3.1] (https://www.python.org/downloads/)
- - [git >= 2.39.1] (https://git-scm.com/downloads)
+## Requirements
+ - [python >= 3.8](https://pip.pypa.io/en/stable/installation/)
+ - [pip >= 22.3.1](https://www.python.org/downloads/)
+ - [git >= 2.39.1](https://git-scm.com/downloads)
 
 ## Install
 
