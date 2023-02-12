@@ -16,7 +16,7 @@ Have git installed https://git-scm.com/downloads
 pip install "git+https://github.com/avargs/mri"
 
 ## Usage
-py -m mri "nri_matrix_folder" "mri_matrix_prefix" "reference_map.nii"
+py -m mri t1w_mfc_3dflash_v1i_R4_0015/ anon_s2018-02-28_18-26-190921-00001-0 "anon_s2018-02-28_18-26-185345-00001-00224-1_RFSC_R2s_OLS (1).nii
 
 ## Note
 
