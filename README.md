@@ -4,10 +4,15 @@ Add a short description here!
 
 
 ## Details
-
+4
 A longer description of your project goes here...
-
+## Requierments
+5
 ## Install
+Have python installed https://pip.pypa.io/en/stable/installation/
+Have pip installed https://www.python.org/downloads/5
+Have git installed https://git-scm.com/downloads
+
 pip install "git+https://github.com/avargs/mri"
 
 ## Usage
