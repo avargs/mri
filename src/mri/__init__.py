@@ -21,8 +21,7 @@ def load_data(prefix):
 
     for i in range(len(suffixes)):
         path_nii = prefix + suffixes[i] + '.nii'
-        img = nib.load(path_nii)
-        data_nii = np.array(img.dataobj)
+        data_nii = load_matrix_from_nifti_file(path_nii)
         list_mri.append(data_nii)
 
         path_json = prefix+suffixes[i]+'.json'
@@ -31,6 +30,8 @@ def load_data(prefix):
 
         for j in data_json['acqpar']:
             te_matrix_list[i, 0] = j['EchoTime']
+
+    list_mri = np.array(list_mri)
 
     return (te_matrix_list, list_mri)
 
