@@ -7,8 +7,8 @@ import nibabel as nib
 
 
 def load_matrix_from_nifti_file(nifti_file_path):
-    nifti_data = nib.load(nifti_file_path)
-    nifti_matrix = np.array(nifti_data.dataobj, dtype='float')
+    nifti_matrix = nib.load(nifti_file_path)
+    nifti_matrix = np.array(nifti_matrix.dataobj, dtype='float')
 
     return nifti_matrix
 
@@ -21,11 +21,11 @@ def load_nifti_folder(nifti_folder_path, prefix=None, suffix_list=['00224-1', '0
     te_vector = np.empty([len(nifti_filename_list), 1], dtype=float)
 
     for (te_index, nifti_filename) in enumerate(nifti_filename_list):
+        # Load the nifti matrix
         nifti_file_path = Path(nifti_folder_path).joinpath('{:}.nii'.format(nifti_filename))
-        
-        nifti_data = load_matrix_from_nifti_file(nifti_file_path)
-        nifti_matrix_list.append(nifti_data)
-
+        nifti_matrix = load_matrix_from_nifti_file(nifti_file_path)
+        nifti_matrix_list.append(nifti_matrix)
+        # Load EchoTime (TE) information
         json_file_path = Path(nifti_folder_path).joinpath('{:}.json'.format(nifti_filename))
         
         with open(json_file_path) as file:
@@ -39,8 +39,8 @@ def load_nifti_folder(nifti_folder_path, prefix=None, suffix_list=['00224-1', '0
     return (te_vector, nifti_matrix_list)
 
 
-def load_data(nifti_data_path, prefix='anon_s2018-02-28_18-26-190921-00001'):
-    return load_nifti_folder(nifti_data_path, prefix)
+def load_data(nifti_matrix_path, prefix='anon_s2018-02-28_18-26-190921-00001'):
+    return load_nifti_folder(nifti_matrix_path, prefix)
 
 def ordinary_least_squares(voxel_signal_matrix, te_vector):
     voxel_signal_matrix[voxel_signal_matrix == 0] = 1
