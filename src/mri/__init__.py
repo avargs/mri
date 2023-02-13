@@ -1,6 +1,7 @@
 import sys
 import json
 from pathlib import Path
+from os import listdir
 
 import numpy as np
 import nibabel as nib
@@ -13,12 +14,21 @@ def load_matrix_from_nifti_file(nifti_file_path):
     return nifti_matrix
 
 
-def load_nifti_folder(nifti_folder_path, prefix=None, suffix_list=['00224-1', '00448-2', '00672-3', '00896-4', '01120-5', '01344-6', '01568-7', '01792-8']):
+def load_nifti_folder(nifti_folder_path, prefix=''):
     ''' Store 3d images in a list and reading the json files to create a EchoTime vector '''    
     nifti_matrix_list = []
     
-    nifti_filename_list = ['{:}-{:}'.format(prefix, suffix) for suffix in suffix_list]
+    nifti_folder_filename_list = list(listdir(nifti_folder_path))
+    nifti_folder_filename_dict = dict([(filename.replace(prefix, ''), filename) for filename in nifti_folder_filename_list if filename.lower().endswith('.nii')])
+    
+    nifti_filename_list = list(nifti_folder_filename_dict.keys())
+    nifti_filename_list = sorted(nifti_filename_list)
+    
+    
+    nifti_filename_list = [nifti_folder_filename_dict[filename][:-4] for filename in nifti_filename_list]
     te_vector = np.empty([len(nifti_filename_list), 1], dtype=float)
+    
+    print(nifti_filename_list)
 
     for (te_index, nifti_filename) in enumerate(nifti_filename_list):
         # Load the nifti matrix
@@ -39,8 +49,9 @@ def load_nifti_folder(nifti_folder_path, prefix=None, suffix_list=['00224-1', '0
     return (te_vector, nifti_matrix_list)
 
 
-def load_data(nifti_matrix_path, prefix='anon_s2018-02-28_18-26-190921-00001'):
+def load_data(nifti_matrix_path, prefix=''):
     return load_nifti_folder(nifti_matrix_path, prefix)
+
 
 def ordinary_least_squares(voxel_signal_matrix, te_vector):
     voxel_signal_matrix[voxel_signal_matrix == 0] = 1
