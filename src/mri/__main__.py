@@ -6,14 +6,25 @@ import matplotlib.pyplot as plt
 from mri import load_data, load_matrix_from_nifti_file, ordinary_least_squares
 
 
-def get_config(args):
-    if len(args) < 4:
-        raise Exception("Not enough args...\n\'{:}\'".format(('\'\n\'').join(args[1:])))
+def usage():
+    pass
 
+
+def get_config(args):
     config = dict()
-    config["input_data_folder"] = args[1]
-    config["input_data_prefix"] = args[2]
-    config["reference_relaxation_rate_map_path"] = args[3]
+    
+    # Check if a path to Nifit files has been provided
+    config["input_data_folder"] = args[1] if len(args) > 1 else None
+    
+    if config["input_data_folder"] is None:
+        usage()
+        raise Exception("Not enough args...\n\'{:}\'".format(('\'\n\'').join(args[1:])))
+    
+    # Use the provided prefix if any
+    config["input_data_prefix"] = args[2] if len(args)> 2 else ''
+
+    # Load the reference R2s map for future comparisons
+    config["reference_relaxation_rate_map_path"] = args[3] if len(args) > 3 else None
     
     return config
 
@@ -56,13 +67,14 @@ def main():
     print_stats(relaxation_rate_map_matrix)
     print()
 
-    # Load the reference relaxation map
-    reference_relaxation_rate_map_matrix = load_matrix_from_nifti_file(config["reference_relaxation_rate_map_path"])
+    if config["reference_relaxation_rate_map_path"] is not None:
+        # Load the reference relaxation map
+        reference_relaxation_rate_map_matrix = load_matrix_from_nifti_file(config["reference_relaxation_rate_map_path"])
 
-    # Show and print the stats of the reference relaxation map
-    show_slice(reference_relaxation_rate_map_matrix)
-    print_stats(reference_relaxation_rate_map_matrix)
-    print()
+        # Show and print the stats of the reference relaxation map
+        show_slice(reference_relaxation_rate_map_matrix)
+        print_stats(reference_relaxation_rate_map_matrix)
+        print()
 
     plt.show()
 

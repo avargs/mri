@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
 git push
-pip uninstall mri
+yes | pip uninstall mri
 
 
-pip install "git+https://github.com/avargs/mri" && \
+yes | pip install "git+https://github.com/avargs/mri" && \
 \
 py -m mri \
    ../data/t1w_mfc_3dflash_v1i_R4_0015/ \

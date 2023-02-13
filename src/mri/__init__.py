@@ -14,35 +14,35 @@ def load_matrix_from_nifti_file(nifti_file_path):
     return nifti_matrix
 
 
-def load_nifti_folder(nifti_folder_path, prefix=''):
+def load_nifti_folder(folder_path, prefix=''):
     ''' Store 3d images in a list and reading the json files to create a EchoTime vector '''    
-    nifti_matrix_list = []
+    matrix_list = []
     
-    # List the filenames of the nifti_folder into nifti_folder_filename_list
-    nifti_folder_filename_list = list(listdir(nifti_folder_path))
+    # List the filenames of the folder into folder_filename_list
+    folder_filename_list = list(listdir(folder_path))
     
     # Filter out the non-Nifti files and associate through a reduced / sortable id (suffix) mapping
-    nifti_folder_filename_dict = dict([(filename.replace(prefix, ''), filename) for filename in nifti_folder_filename_list if filename.lower().endswith('.nii')])
+    folder_filename_dict = dict([(filename.replace(prefix, ''), filename) for filename in folder_filename_list if filename.lower().endswith('.nii')])
     
     # Retrieve and sort the suffix list
-    nifti_suffix_list = list(nifti_folder_filename_dict.keys())
-    nifti_suffix_list = sorted(nifti_suffix_list)
+    suffix_list = list(folder_filename_dict.keys())
+    suffix_list = sorted(suffix_list)
     
     # Store the ordered filename list
-    nifti_filename_list = [nifti_folder_filename_dict[suffix][:-4] for suffix in nifti_suffix_list]
-    te_vector = np.empty([len(nifti_filename_list), 1], dtype=float)
+    filename_list = [folder_filename_dict[suffix][:-4] for suffix in suffix_list]
+    te_vector = np.empty([len(filename_list), 1], dtype=float)
 
-    # Go through each nifti_filenme and load the associated matrix and EchoTime (TE)
-    for (te_index, nifti_filename) in enumerate(nifti_filename_list):
+    # Go through each filenme and load the associated matrix and EchoTime (TE)
+    for (te_index, filename) in enumerate(filename_list):
         # Load the nifti matrix
-        nifti_file_path = Path(nifti_folder_path).joinpath('{:}.nii'.format(nifti_filename))
+        nifti_file_path = Path(folder_path).joinpath('{:}.nii'.format(filename))
         nifti_matrix = load_matrix_from_nifti_file(nifti_file_path)
         
-        # Add the nifti matrix to the nifti_matrix_list
-        nifti_matrix_list.append(nifti_matrix)
+        # Add the nifti matrix to the matrix_list
+        matrix_list.append(nifti_matrix)
         
         # Load EchoTime (TE) information
-        json_file_path = Path(nifti_folder_path).joinpath('{:}.json'.format(nifti_filename))
+        json_file_path = Path(folder_path).joinpath('{:}.json'.format(filename))
         with open(json_file_path) as file:
             json_data = json.load(file)
 
@@ -50,13 +50,13 @@ def load_nifti_folder(nifti_folder_path, prefix=''):
         te_vector[te_index, 0] = json_data['acqpar'][0]['EchoTime']
 
     # Aggregate loaded data into a 4D matrix of successively sampled 3D hMRI matrices
-    nifti_matrix_list = np.array(nifti_matrix_list)
+    matrix_list = np.array(matrix_list)
 
-    return (te_vector, nifti_matrix_list)
+    return (te_vector, matrix_list)
 
 
-def load_data(nifti_matrix_path, prefix=''):
-    return load_nifti_folder(nifti_matrix_path, prefix)
+def load_data(nifti_folder_path, prefix=''):
+    return load_nifti_folder(nifti_folder_path, prefix)
 
 
 def ordinary_least_squares(voxel_signal_matrix, te_vector):
