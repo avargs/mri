@@ -7,6 +7,8 @@ from mri import load_data, load_matrix_from_nifti_file, ordinary_least_squares
 
 
 def get_config(args):
+    if len(args) < 4:
+        raise Exception("Not enough args...\n\'{:}\'".format(('\'\n\'').join(args[1:])))
     config = dict()
     config["input_data_folder"] = args[1]
     config["input_data_prefix"] = args[2]
