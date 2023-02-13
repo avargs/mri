@@ -18,32 +18,38 @@ def load_nifti_folder(nifti_folder_path, prefix=''):
     ''' Store 3d images in a list and reading the json files to create a EchoTime vector '''    
     nifti_matrix_list = []
     
+    # List the filenames of the nifti_folder into nifti_folder_filename_list
     nifti_folder_filename_list = list(listdir(nifti_folder_path))
+    
+    # Filter out the non-Nifti files and associate through a reduced / sortable id (suffix) mapping
     nifti_folder_filename_dict = dict([(filename.replace(prefix, ''), filename) for filename in nifti_folder_filename_list if filename.lower().endswith('.nii')])
     
-    nifti_filename_list = list(nifti_folder_filename_dict.keys())
-    nifti_filename_list = sorted(nifti_filename_list)
+    # Retrieve and sort the suffix list
+    nifti_suffix_list = list(nifti_folder_filename_dict.keys())
+    nifti_suffix_list = sorted(nifti_suffix_list)
     
-    
-    nifti_filename_list = [nifti_folder_filename_dict[filename][:-4] for filename in nifti_filename_list]
+    # Store the ordered filename list
+    nifti_filename_list = [nifti_folder_filename_dict[suffix][:-4] for suffix in nifti_suffix_list]
     te_vector = np.empty([len(nifti_filename_list), 1], dtype=float)
-    
-    print(nifti_filename_list)
 
+    # Go through each nifti_filenme and load the associated matrix and EchoTime (TE)
     for (te_index, nifti_filename) in enumerate(nifti_filename_list):
         # Load the nifti matrix
         nifti_file_path = Path(nifti_folder_path).joinpath('{:}.nii'.format(nifti_filename))
         nifti_matrix = load_matrix_from_nifti_file(nifti_file_path)
+        
+        # Add the nifti matrix to the nifti_matrix_list
         nifti_matrix_list.append(nifti_matrix)
+        
         # Load EchoTime (TE) information
         json_file_path = Path(nifti_folder_path).joinpath('{:}.json'.format(nifti_filename))
-        
         with open(json_file_path) as file:
             json_data = json.load(file)
 
-        for j in json_data['acqpar']:
-            te_vector[te_index, 0] = j['EchoTime']
+        # Store TE in the te_vector at the matrix index's
+        te_vector[te_index, 0] = json_data['acqpar'][0]['EchoTime']
 
+    # Aggregate loaded data into a 4D matrix of successively sampled 3D hMRI matrices
     nifti_matrix_list = np.array(nifti_matrix_list)
 
     return (te_vector, nifti_matrix_list)
