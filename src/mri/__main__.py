@@ -42,7 +42,7 @@ def main():
     #
     # The echo time (TE) for each matrix is loaded as well and stored into a the vector te_matrix_list[TE] where:
     # - the first dimension (TE) indexes the successive negated sample times as 3d matrices
-    (te_matrix_list, hmri_matrix_list) = load_data(config["input_data_folder"] + config["input_data_prefix"])
+    (te_matrix_list, hmri_matrix_list) = load_data(config["input_data_folder"], config["input_data_prefix"])
 
     # Compute the ordinary least square solution
     relaxation_rate_map_matrix = ordinary_least_squares(hmri_matrix_list, te_matrix_list)

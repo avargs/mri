@@ -1,5 +1,6 @@
 import sys
 import json
+from pathlib import Path
 
 import numpy as np
 import nibabel as nib
@@ -12,35 +13,40 @@ def load_matrix_from_nifti_file(nifti_file_path):
     return nifti_matrix
 
 
-def load_data(prefix):
-    # Store 3d images in a list and reading the json files to create a EchoTime vector
-    suffixes = ['0224-1', '0448-2', '0672-3', '0896-4', '1120-5', '1344-6', '1568-7', '1792-8']
+def load_nifti_folder(nifti_folder_path, prefix=None, suffix_list=['00224-1', '00448-2', '00672-3', '00896-4', '01120-5', '01344-6', '01568-7', '01792-8']):
+    ''' Store 3d images in a list and reading the json files to create a EchoTime vector '''    
+    nifti_matrix_list = []
+    
+    nifti_filename_list = ['{:}-{:}'.format(prefix, suffix) for suffix in suffix_list]
+    te_vector = np.empty([len(nifti_filename_list), 1], dtype=float)
 
-    list_mri = []
-    te_matrix_list = np.empty([8, 1], dtype=float)
+    for (te_index, nifti_filename) in enumerate(nifti_filename_list):
+        nifti_file_path = Path(nifti_folder_path).joinpath('{:}.nii'.format(nifti_filename))
+        
+        nifti_data = load_matrix_from_nifti_file(nifti_file_path)
+        nifti_matrix_list.append(nifti_data)
 
-    for i in range(len(suffixes)):
-        path_nii = prefix + suffixes[i] + '.nii'
-        data_nii = load_matrix_from_nifti_file(path_nii)
-        list_mri.append(data_nii)
+        json_file_path = Path(nifti_folder_path).joinpath('{:}.json'.format(nifti_filename))
+        
+        with open(json_file_path) as file:
+            json_data = json.load(file)
 
-        path_json = prefix+suffixes[i]+'.json'
-        file = open(path_json)
-        data_json = json.load(file)
+        for j in json_data['acqpar']:
+            te_vector[te_index, 0] = j['EchoTime']
 
-        for j in data_json['acqpar']:
-            te_matrix_list[i, 0] = j['EchoTime']
+    nifti_matrix_list = np.array(nifti_matrix_list)
 
-    list_mri = np.array(list_mri)
-
-    return (te_matrix_list, list_mri)
+    return (te_vector, nifti_matrix_list)
 
 
-def ordinary_least_squares(voxel_signal_matrix, te_matrix_list):
+def load_data(nifti_data_path, prefix='anon_s2018-02-28_18-26-190921-00001'):
+    return load_nifti_folder(nifti_data_path, prefix)
+
+def ordinary_least_squares(voxel_signal_matrix, te_vector):
     voxel_signal_matrix[voxel_signal_matrix == 0] = 1
     voxel_signal_matrix = np.log(voxel_signal_matrix)
 
-    echo_time_vector = te_matrix_list.reshape([1, 8])
+    echo_time_vector = te_vector.reshape([1, 8])
 
     dx = echo_time_vector - np.mean(echo_time_vector)
     dy = voxel_signal_matrix - np.mean(voxel_signal_matrix)
