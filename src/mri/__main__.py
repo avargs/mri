@@ -1,7 +1,9 @@
 import sys
+from pathlib import Path
 
 import numpy as np
 import matplotlib.pyplot as plt
+import nibabel as nib
 
 from mri import load_data, load_matrix_from_nifti_file, ordinary_least_squares
 
@@ -61,6 +63,10 @@ def main():
 
     # Scale back the relaxation map data to the range of the reference relaxation map
     relaxation_rate_map_matrix *= 1000.0
+
+    # Save array into nifti file
+    nifti_file = nib.Nifti1Image(relaxation_rate_map_matrix, np.eye(4))
+    nib.save(nifti_file, Path('../../data/EstimatedRelaxationMap.nii'))
 
     # Show and print the stats for the produced relaxation rate map
     show_slice(relaxation_rate_map_matrix)
