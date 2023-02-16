@@ -66,7 +66,7 @@ def main():
 
     # Save array into nifti file
     nifti_file = nib.Nifti1Image(relaxation_rate_map_matrix, np.eye(4))
-    nib.save(nifti_file, Path('../../data/EstimatedRelaxationMap.nii'))
+    nib.save(nifti_file, Path('./EstimatedRelaxationMap.nii'))
 
     # Show and print the stats for the produced relaxation rate map
     show_slice(relaxation_rate_map_matrix)
